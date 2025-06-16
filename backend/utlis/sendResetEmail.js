@@ -1,13 +1,14 @@
 const nodemailer = require("nodemailer");
+require("dotenv").config(); // Load environment variables
 
 async function sendResetEmail(toEmail, resetLink) {
-  // Use Ethereal for testing
   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
+    secure: false, // true for 465, false for other ports like 587
     auth: {
-      user: "utkarshgupta.976274@gmail.com",
-      pass: "akws mtly fegv haps",
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
     },
   });
 
