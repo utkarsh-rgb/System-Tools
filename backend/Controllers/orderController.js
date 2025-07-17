@@ -1,5 +1,6 @@
 const pool = require('../Models/db');
 const { getIO, connectedUsers } = require('../utlis/socket');
+const Logger = require('../Logs/logger');
 
 // 🔹 Fetch all orders for a user
 const orders = async (req, res) => {
@@ -12,6 +13,7 @@ const orders = async (req, res) => {
     );
 
     if (orders.length === 0) {
+      Logger.info(`No orders found for user: ${username}`);
       return res.status(404).json({ message: "No orders found for this user" });
     }
 
@@ -27,9 +29,10 @@ const orders = async (req, res) => {
       order.items = items;
     }
 
+    Logger.info(`Fetched ${orders.length} orders for user: ${username}`);
     res.json(orders);
   } catch (error) {
-    console.error("Error fetching user orders:", error);
+    Logger.error(`Error fetching user orders for ${username}: ${error.stack}`);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -60,9 +63,10 @@ const orderItems = async (req, res) => {
       });
     }
 
+    Logger.info(`Fetched grouped order items. Total rows: ${rows.length}`);
     res.json(grouped);
   } catch (error) {
-    console.error("Error fetching full order details:", error);
+    Logger.error(`Error fetching full order details: ${error.stack}`);
     res.status(500).json({ message: "Server error" });
   }
 };
@@ -95,35 +99,33 @@ const orderItemsById = async (req, res) => {
     );
 
     if (rows.length === 0) {
+      Logger.info(`Order with ID ${orderId} not found.`);
       return res.status(404).json({ message: "Order not found" });
     }
 
+    Logger.info(`Fetched full details for order ID: ${orderId}`);
     res.json(rows);
   } catch (error) {
-    console.error("Error fetching order by ID:", error);
+    Logger.error(`Error fetching order by ID ${orderId}: ${error.stack}`);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 // 🔹 Update order status and send notification
-
 const updateOrderStatus = async (req, res) => {
   const { orderId, username, status, message } = req.body;
 
   if (!orderId || !username || !status || !message) {
+    Logger.warn("Missing required fields in updateOrderStatus request.");
     return res.status(400).json({ message: 'Missing required fields.' });
   }
 
   try {
-    console.log(`Updating order ${orderId} to status "${status}" for user ${username}`);
+    Logger.info(`Updating order ${orderId} to status "${status}" for user ${username}`);
 
-    // Update order in DB
-    await pool.query('UPDATE orders SET status = ? , status_timestamp = NOW()WHERE id = ?', [status, orderId]);
-
-    // Save notification in DB
+    await pool.query('UPDATE orders SET status = ?, status_timestamp = NOW() WHERE id = ?', [status, orderId]);
     await pool.query('INSERT INTO notifications (username, message, created_at) VALUES (?, ?, NOW())', [username, message]);
 
-    // Send real-time notification
     const socketId = connectedUsers.get(username);
     const io = getIO();
 
@@ -134,46 +136,47 @@ const updateOrderStatus = async (req, res) => {
         message,
         timestamp: new Date(),
       });
-      console.log(`✅ Sent notification to ${username}`);
+      Logger.info(`✅ Sent notification to ${username}`);
     } else {
-      console.log(`⚠️ User ${username} is not connected`);
+      Logger.warn(`⚠️ User ${username} is not connected`);
     }
 
     return res.json({ message: 'Order status updated and notification sent.' });
   } catch (error) {
-    console.error("❌ Error updating order status:", error);
+    Logger.error(`❌ Error updating order status: ${error.stack}`);
     return res.status(500).json({ message: 'Server error updating status.' });
   }
 };
 
-
+// 🔹 Get notifications for a user
 const getUserNotifications = async (req, res) => {
   const { username } = req.params;
-  console.log('req.params');
 
   try {
     const [rows] = await pool.query(
       'SELECT message, created_at FROM notifications WHERE username = ? ORDER BY created_at DESC',
       [username]
     );
-    console.log(rows)
+
+    Logger.info(`Fetched ${rows.length} notifications for user: ${username}`);
     res.json(rows);
   } catch (err) {
-    console.error('❌ Error fetching notifications:', err);
+    Logger.error(`❌ Error fetching notifications for ${username}: ${err.stack}`);
     res.status(500).json({ message: 'Failed to fetch notifications' });
   }
 };
 
-const clearNotification= async (req, res) => {
+// 🔹 Clear all notifications for a user
+const clearNotification = async (req, res) => {
   const { username } = req.params;
-  console.log('req.params');
-  try{
- const [rows] = await pool.query(`DELETE FROM notifications WHERE username = ?`, [username]);
-  
-  res.json(rows);
-}
-  catch(err){
-    console.log(err);
+
+  try {
+    const [rows] = await pool.query(`DELETE FROM notifications WHERE username = ?`, [username]);
+    Logger.info(`Cleared notifications for user: ${username}`);
+    res.json(rows);
+  } catch (err) {
+    Logger.error(`❌ Error clearing notifications for ${username}: ${err.stack}`);
+    res.status(500).json({ message: 'Failed to clear notifications' });
   }
 };
 

@@ -4,6 +4,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 const path = require("path");
+const logger = require('./Logs/logger')
 require("dotenv").config();
 
 const { initSocket } = require("./utlis/socket");

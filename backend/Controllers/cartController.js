@@ -1,4 +1,5 @@
 const pool = require('../Models/db');
+const logger = require('../Logs/logger');
 
 const cart = async (req, res) => {
   const { userData, cartItems } = req.body;
@@ -9,6 +10,7 @@ const cart = async (req, res) => {
     !Array.isArray(cartItems) ||
     cartItems.length === 0
   ) {
+    logger.warn("Cart submission failed: Missing or invalid userData or cartItems");
     return res
       .status(400)
       .json({ message: "Missing or invalid userData or cartItems" });
@@ -22,10 +24,9 @@ const cart = async (req, res) => {
     return sum + price * quantity;
   }, 0);
 
-  console.log("Cart Items:", cartItems);
-  console.log("Calculated total order price:", totalOrderPrice);
+  logger.info(`User ${username} submitted a cart with total price ₹${totalOrderPrice.toFixed(2)}`);
 
-  const connection = await pool.getConnection(); // ✅ fixed
+  const connection = await pool.getConnection();
 
   try {
     await connection.beginTransaction();
@@ -36,6 +37,7 @@ const cart = async (req, res) => {
     );
 
     const orderId = orderResult.insertId;
+    logger.info(`New order created: OrderID=${orderId}, User=${username}`);
 
     for (const item of cartItems) {
       const {
@@ -51,13 +53,17 @@ const cart = async (req, res) => {
         `INSERT INTO order_items (order_id, product_id, product_name, price_per_unit, quantity) VALUES (?, ?, ?, ?, ?)`,
         [orderId, productId, productName, pricePerUnit, finalQuantity]
       );
+
+      logger.info(`Order item added: OrderID=${orderId}, Product=${productName}, Qty=${finalQuantity}`);
     }
 
     await connection.commit();
+    logger.info(`Order successfully saved for ${username}, OrderID=${orderId}`);
+
     res.status(201).json({ message: "Order saved successfully", orderId });
   } catch (error) {
     await connection.rollback();
-    console.error("Error saving order:", error);
+    logger.error(`Order save failed for ${username}: ${error.message}`);
     res.status(500).json({ message: "Failed to save order" });
   } finally {
     connection.release();

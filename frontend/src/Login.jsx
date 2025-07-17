@@ -3,6 +3,7 @@ import axios from "axios";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import sendLogToBackend from "./utils/logger";
 
 export default function Login() {
   const [username, setUsername] = useState("");
@@ -75,6 +76,7 @@ export default function Login() {
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <input
+              name = "username"
                 ref={usernameRef}
                 type="text"
                 className="form-control form-control-lg"
@@ -91,6 +93,7 @@ export default function Login() {
             <div className="mb-3">
               <div className="input-group input-group-lg">
                 <input
+                name = "password"
                   type={showPassword ? "text" : "password"}
                   className="form-control"
                   placeholder="Password"

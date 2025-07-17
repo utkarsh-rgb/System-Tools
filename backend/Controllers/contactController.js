@@ -1,9 +1,13 @@
 const pool = require('../Models/db');
+const logger = require('../Logs/logger');
 
 const contact = async (req, res) => {
   const { name, email, message } = req.body;
 
+  logger.info(`Received contact form: name=${name}, email=${email}`);
+
   if (!name || !email || !message) {
+    logger.warn('Contact form submission failed: Missing fields');
     return res.status(400).json({ message: "Please fill all required fields" });
   }
 
@@ -11,9 +15,10 @@ const contact = async (req, res) => {
   
   try {
     await pool.execute(query, [name, email, message]);
+    logger.info(`Contact form saved: ${email}`);
     res.status(201).json({ message: "Message submitted successfully" });
   } catch (err) {
-    console.error("DB Error:", err);
+    logger.error(`DB Error: ${err.message}`);
     res.status(500).json({ message: "Database error" });
   }
 };

@@ -1,4 +1,5 @@
 const pool = require('../Models/db');
+const logger = require('../Logs/logger'); // 🔥 Import winston logger
 
 const adminDashboard = async (req, res) => {
   try {
@@ -14,11 +15,11 @@ const adminDashboard = async (req, res) => {
       ORDER BY orders.order_date DESC;`
     );
 
-    console.log("Fetched admin orders:", rows);
+    logger.info("✅ Admin dashboard fetched for today");
     res.json(rows);
   } catch (err) {
-    console.error("🔥 SQL ERROR in /admin/orders route:", err);
-    res.status(500).json({ error: err.message });
+    logger.error(`❌ SQL ERROR in adminDashboard: ${err.message}`);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -35,11 +36,11 @@ const adminDashboardHistory = async (req, res) => {
       ORDER BY orders.order_date DESC;`
     );
 
-    console.log("Fetched admin orders:", rows);
+    logger.info("📊 Admin dashboard history fetched successfully");
     res.json(rows);
   } catch (err) {
-    console.error("🔥 SQL ERROR in /admin/orders route:", err);
-    res.status(500).json({ error: err.message });
+    logger.error(`❌ SQL ERROR in adminDashboardHistory: ${err.message}`);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
