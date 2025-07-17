@@ -1,7 +1,7 @@
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const pool = require('../Models/db');
-const logger = require('../Logs/logger'); // <-- Added
+const logger = require('../Logs/logger'); 
 require("dotenv").config();
 
 const signup = async (req, res) => {
