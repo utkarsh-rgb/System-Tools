@@ -17,6 +17,7 @@ const productRoute = require('./Routes/productRoutes');
 const cartRoute = require('./Routes/cartRoutes');
 const orderRoute = require('./Routes/orderRoutes');
 const adminRoute = require('./Routes/adminRoutes');
+const logRoute = require('./Routes/logRoute');
 const verifyTokenRoute = require('./utlis/verify-token')
 const resetPasswordRoute = require('./utlis/reset-password');
 
@@ -38,6 +39,7 @@ app.use('/', cartRoute);
 app.use('/', orderRoute);
 app.use('/', adminRoute);
 app.use('/',forgotPasswordRoutes );
+app.use('/',logRoute);
 app.use(verifyTokenRoute);
 app.use(resetPasswordRoute);
 
