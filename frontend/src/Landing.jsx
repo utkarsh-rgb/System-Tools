@@ -260,36 +260,37 @@ export default function Landing() {
           />
         </div>
 
-        <div className="row g-4">
-          {filteredProducts.length > 0 ? (
-            filteredProducts.map((product, index) => (
-              <div
-                className="col-12 mb-5"
-                key={index}
-                data-aos="fade-up"
-                data-aos-delay={index * 100}
-              >
-                <div
-                  className={`d-flex align-items-center shadow-sm p-3 rounded bg-white gap-4 flex-column flex-md-row ${
-                    index % 2 === 0 ? "" : "flex-md-row-reverse"
-                  }`}
-                >
-                  <img
-                    src={`http://localhost:5000${product.image_path}`}
-                    alt={product.name}
-                    className="product-image"
-                  />
-                  <div style={{ maxWidth: "600px" }}>
-                    <h5 className="fw-bold">{product.name}</h5>
-                    <p>{product.description}</p>
-                  </div>
-                </div>
-              </div>
-            ))
-          ) : (
-            <div className="text-center text-muted">No tools found.</div>
-          )}
+       <div className="row g-4">
+  {filteredProducts.length > 0 ? (
+    filteredProducts.slice(0, 5).map((product, index) => (
+      <div
+        className="col-12 mb-5"
+        key={index}
+        data-aos="fade-up"
+        data-aos-delay={index * 100}
+      >
+        <div
+          className={`d-flex align-items-center shadow-sm p-3 rounded bg-white gap-4 flex-column flex-md-row ${
+            index % 2 === 0 ? "" : "flex-md-row-reverse"
+          }`}
+        >
+          <img
+            src={`http://localhost:5000${product.image_path}`}
+            alt={product.name}
+            className="product-image"
+          />
+          <div style={{ maxWidth: "600px" }}>
+            <h5 className="fw-bold">{product.name}</h5>
+            <p>{product.description}</p>
+          </div>
         </div>
+      </div>
+    ))
+  ) : (
+    <div className="text-center text-muted">No tools found.</div>
+  )}
+</div>
+
 
         <div
           className="text-center mt-4"
