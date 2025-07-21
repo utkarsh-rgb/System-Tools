@@ -4,6 +4,22 @@
 
 ---
 
+## 📽️ Video Walkthroughs
+
+### 🔹 User Side Demo
+
+> This video demonstrates the user journey — from landing on the homepage, logging in, browsing products, adding them to the cart, and placing an order.
+
+[▶️ Download/View User Demo](./user-demo.mp4)
+
+### 🔹 Admin Side Demo
+
+> This video showcases the admin panel where admins can view orders, update product details (price, image, description), change order status (e.g., Processing, Shipped), and manage user notifications.
+
+[▶️ Download/View Admin Demo](./admin-demo.mp4)
+
+---
+
 ## 🚀 Features
 
 ### 👤 User Features:
